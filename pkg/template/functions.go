@@ -9,9 +9,14 @@ import (
 	"strings"
 	"text/template"
 	"time"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 var (
+	englishTitleCaser = cases.Title(language.English)
+
 	// FuncMap contains the functions exposed to templating engine.
 	FuncMap = template.FuncMap{
 		// TODO confirmation prompt
@@ -40,7 +45,7 @@ var (
 			return fmt.Sprintf("%b", n)
 		},
 
-		"formatFilesize": func(value interface{}) string {
+		"formatFilesize": func(value any) string {
 			var size float64
 
 			v := reflect.ValueOf(value)
@@ -62,7 +67,7 @@ var (
 			var PB float64 = 1 << 50
 
 			filesizeFormat := func(filesize float64, suffix string) string {
-				return strings.Replace(fmt.Sprintf("%.1f %s", filesize, suffix), ".0", "", -1)
+				return strings.ReplaceAll(fmt.Sprintf("%.1f %s", filesize, suffix), ".0", "")
 			}
 
 			var result string
@@ -87,13 +92,25 @@ var (
 		"toLower": strings.ToLower,
 		"toUpper": strings.ToUpper,
 		"toTitle": strings.ToTitle,
-		"title":   strings.Title,
+		"title":   englishTitleCaser.String,
 
 		"trimSpace":  strings.TrimSpace,
 		"trimPrefix": strings.TrimPrefix,
 		"trimSuffix": strings.TrimSuffix,
 
-		"repeat": strings.Repeat,
+		"repeat":  strings.Repeat,
+		"replace": strings.Replace,
+
+		// camel splits a string by a separator and recombines while capitalizing
+		// the first character in each part
+		"camel": func(value, sep string) (result string) {
+			parts := strings.Split(value, sep)
+			result = parts[0]
+			for _, part := range parts[1:] {
+				result += englishTitleCaser.String(part)
+			}
+			return
+		},
 	}
 
 	// Options contain the default options for the template execution.

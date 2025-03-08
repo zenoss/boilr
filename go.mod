@@ -9,6 +9,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/spf13/cobra v1.9.1
 	github.com/tmrts/boilr v0.0.0-20170719132028-8f51ad7884c5
+	golang.org/x/text v0.22.0
 )
 
 require (
